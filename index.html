@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reloj CDMX</title>
+    <title>Reloj</title>
     <style>
         body {
             background-color: #000000;
@@ -27,16 +27,35 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+        #offset-label {
+            font-size: 1.2vw;
+            margin-top: 16px;
+            opacity: 0.4;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
     <div id="time">00:00 AM</div>
     <div id="date">-- -- ----</div>
+    <div id="offset-label"></div>
     <script>
         const TZ = 'America/Monterrey';
 
+        // Lee parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const offsetHours = parseFloat(params.get('offset') || '0');  // ?offset=-2 o ?offset=3
+        const offsetMs = offsetHours * 60 * 60 * 1000;
+
+        // Muestra etiqueta solo si hay offset activo
+        if (offsetHours !== 0) {
+            const sign = offsetHours > 0 ? '+' : '';
+            document.getElementById('offset-label').textContent =
+                `Offset: ${sign}${offsetHours}h`;
+        }
+
         function updateClock() {
-            const now = new Date();
+            const now = new Date(Date.now() + offsetMs);
 
             const timeParts = new Intl.DateTimeFormat('en-US', {
                 timeZone: TZ,
