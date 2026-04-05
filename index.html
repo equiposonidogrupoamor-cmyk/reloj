@@ -32,39 +32,37 @@
 <body>
     <div id="time">00:00 AM</div>
     <div id="date">-- -- ----</div>
-
     <script>
         function updateClock() {
             const now = new Date();
+            const cdmxOffset = -6 * 60;
+            const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+            const cdmxDate = new Date(utcMs + cdmxOffset * 60000);
 
-            // Seteamos la zona horaria a CDMX específicamente
-            const timeOptions = {
-                timeZone: 'America/Mexico_City',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            };
+            let hours = cdmxDate.getUTCHours();
+            const minutes = cdmxDate.getUTCMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const timeString = `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`;
 
-            const dateOptions = {
-                timeZone: 'America/Mexico_City',
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
+            const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const dateString = `${dias[cdmxDate.getUTCDay()]}, ${cdmxDate.getUTCDate()} de ${meses[cdmxDate.getUTCMonth()]} de ${cdmxDate.getUTCFullYear()}`;
 
-            // Formateamos hora y fecha usando el estándar internacional con la zona de CDMX
-            let timeString = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
-            let dateString = new Intl.DateTimeFormat('es-MX', dateOptions).format(now);
-
-            // Insertamos en el HTML
             document.getElementById('time').textContent = timeString;
             document.getElementById('date').textContent = dateString;
         }
 
-        // Actualización cada segundo
-        setInterval(updateClock, 1000);
-        updateClock();
+        // Actualiza solo cuando cambia el minuto, no cada segundo
+        function scheduleUpdate() {
+            updateClock();
+            const now = new Date();
+            const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+            setTimeout(scheduleUpdate, msUntilNextMinute);
+        }
+
+        scheduleUpdate();
     </script>
 </body>
 </html>
