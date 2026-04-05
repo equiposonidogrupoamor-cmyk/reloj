@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reloj Proyección</title>
+    <title>Reloj CDMX</title>
     <style>
         body {
             background-color: #000000;
@@ -17,7 +17,7 @@
             overflow: hidden;
         }
         #time {
-            font-size: 18vw; /* Un poco más grande al no tener segundos */
+            font-size: 18vw;
             font-weight: 700;
             line-height: 1;
         }
@@ -26,7 +26,6 @@
             margin-top: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            opacity: 0.9;
         }
     </style>
 </head>
@@ -37,25 +36,33 @@
     <script>
         function updateClock() {
             const now = new Date();
-            // AJUSTE: Sumamos 1 hora (3600000 ms) para que marque las 8:00
-            const adjusted = new Date(now.getTime() + 3600000);
 
-            // Formato de Hora (12h sin segundos)
-            let h = adjusted.getHours();
-            let m = adjusted.getMinutes();
-            let ampm = h >= 12 ? 'PM' : 'AM';
-            
-            h = h % 12 || 12; // Convierte 0 a 12 para formato 12h
-            m = m < 10 ? '0' + m : m;
+            // Seteamos la zona horaria a CDMX específicamente
+            const timeOptions = {
+                timeZone: 'America/Mexico_City',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            };
 
-            document.getElementById('time').textContent = `${h}:${m} ${ampm}`;
+            const dateOptions = {
+                timeZone: 'America/Mexico_City',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
 
-            // Formato de Fecha Largo (como el link original)
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('date').textContent = adjusted.toLocaleDateString('es-ES', options);
+            // Formateamos hora y fecha usando el estándar internacional con la zona de CDMX
+            let timeString = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
+            let dateString = new Intl.DateTimeFormat('es-MX', dateOptions).format(now);
+
+            // Insertamos en el HTML
+            document.getElementById('time').textContent = timeString;
+            document.getElementById('date').textContent = dateString;
         }
 
-        // Actualizamos cada segundo para que el cambio de minuto sea exacto
+        // Actualización cada segundo
         setInterval(updateClock, 1000);
         updateClock();
     </script>
